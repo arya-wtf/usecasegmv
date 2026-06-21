@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Global Minang Ventura — AI-Native Case Study</title>
+<meta name="description" content="How we built Global Minang Ventura: an AI-native, 7-day delivery — proof of concept, rapid Figma Sites iteration, AI-generated brand media (Nano Banana Pro, Veo 3, Seedream 2.0), and a database-free CMS on Cloudflare." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root, [data-theme="dark"]{
+    --bg:#0a0a0b;
+    --bg-soft:#101012;
+    --panel:#141416;
+    --panel-2:#1a1a1d;
+    --line:rgba(255,255,255,0.08);
+    --line-strong:rgba(255,255,255,0.16);
+    --ink:#f4f2ee;
+    --ink-soft:#b9b6b0;
+    --ink-mute:#7d7a74;
+    --gold:#c9a24a;
+    --gold-soft:#e3c882;
+    --ember:#d9772f;
+    --nav-bg:rgba(10,10,11,0.72);
+    --nav-bg-2:rgba(10,10,11,0.85);
+    --shadow-hero:0 40px 120px rgba(0,0,0,0.6);
+    --ph-stripe-a:rgba(255,255,255,0.02);
+    --ph-stripe-b:rgba(255,255,255,0.04);
+    --ph-grad-a:#161618;
+    --ph-grad-b:#0e0e10;
+    --radius:18px;
+    --maxw:1120px;
+    --ease:cubic-bezier(.2,.7,.2,1);
+  }
+  [data-theme="light"]{
+    --bg:#faf8f4;
+    --bg-soft:#f3efe8;
+    --panel:#ffffff;
+    --panel-2:#f6f2ea;
+    --line:rgba(26,18,6,0.10);
+    --line-strong:rgba(26,18,6,0.18);
+    --ink:#1a1206;
+    --ink-soft:#4f483c;
+    --ink-mute:#8a8375;
+    --gold:#a87d22;
+    --gold-soft:#7a5a14;
+    --ember:#c4621f;
+    --nav-bg:rgba(250,248,244,0.78);
+    --nav-bg-2:rgba(250,248,244,0.9);
+    --shadow-hero:0 30px 80px rgba(26,18,6,0.14);
+    --ph-stripe-a:rgba(26,18,6,0.02);
+    --ph-stripe-b:rgba(26,18,6,0.045);
+    --ph-grad-a:#efe9df;
+    --ph-grad-b:#e3dccf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-weight:400;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    transition:background .4s var(--ease),color .4s var(--ease);
+  }
+  h1,h2,h3,h4,.display{font-family:'Sora',sans-serif;letter-spacing:-0.02em;line-height:1.08}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  .eyebrow{
+    font-size:12px;letter-spacing:0.28em;text-transform:uppercase;
+    color:var(--gold);font-weight:600;
+  }
+  .muted{color:var(--ink-soft)}
+  .mute2{color:var(--ink-mute)}
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(14px);
+    background:var(--nav-bg);
+    border-bottom:1px solid var(--line);
+    transition:background .4s var(--ease);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:12px;font-family:'Sora';font-weight:700;letter-spacing:0.04em}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,var(--gold),var(--ember));
+    display:grid;place-items:center;color:#1a1206;font-weight:700;font-size:15px;
+  }
+  .brand small{display:block;font-family:'Inter';font-weight:400;font-size:10px;letter-spacing:0.22em;color:var(--ink-mute);text-transform:uppercase}
+  .nav-links{display:flex;gap:30px;font-size:14px}
+  .nav-links a{color:var(--ink-soft);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{
+    font-size:13px;font-weight:500;padding:9px 18px;border-radius:999px;
+    border:1px solid var(--line-strong);color:var(--ink);transition:.25s var(--ease);
+  }
+  .nav-cta:hover{background:var(--ink);color:var(--bg)}
+  /* theme toggle */
+  .theme-toggle{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:999px;cursor:pointer;
+    border:1px solid var(--line-strong);background:transparent;color:var(--ink);
+    transition:.25s var(--ease);
+  }
+  .theme-toggle:hover{background:rgba(201,162,74,0.12);border-color:var(--gold)}
+  .theme-toggle svg{width:18px;height:18px}
+  .theme-toggle .icon-sun{display:none}
+  [data-theme="light"] .theme-toggle .icon-sun{display:block}
+  [data-theme="light"] .theme-toggle .icon-moon{display:none}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* ---------- SUB NAV (sticky in-page) ---------- */
+  .subnav{position:sticky;top:68px;z-index:40;background:var(--nav-bg-2);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);transition:background .4s var(--ease)}
+  .subnav-inner{display:flex;align-items:center;justify-content:space-between;height:52px;font-size:13px}
+  .subnav .links{display:flex;gap:26px;color:var(--ink-mute)}
+  .subnav .links a{transition:color .2s}
+  .subnav .links a:hover{color:var(--gold)}
+  .subnav .back{color:var(--ink-mute);font-size:12.5px}
+  @media(max-width:760px){.subnav .links{gap:16px;overflow-x:auto;white-space:nowrap}}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:96px 0 60px;text-align:center;overflow:hidden}
+  .hero::before{
+    content:"";position:absolute;inset:0;z-index:0;
+    background:
+      radial-gradient(900px 420px at 50% -8%, rgba(201,162,74,0.16), transparent 60%),
+      radial-gradient(700px 500px at 85% 30%, rgba(217,119,47,0.10), transparent 60%);
+  }
+  .hero .wrap{position:relative;z-index:1}
+  .hero h1{font-size:clamp(40px,7vw,82px);font-weight:600;margin:22px auto 0;max-width:14ch}
+  .hero .lede{max-width:62ch;margin:24px auto 0;font-size:clamp(16px,2vw,19px);color:var(--ink-soft)}
+  .hero-actions{display:flex;gap:14px;justify-content:center;margin-top:36px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;font-weight:500;font-size:14.5px;
+    padding:13px 24px;border-radius:999px;transition:.25s var(--ease);
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1206}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(201,162,74,0.28)}
+  .btn-ghost{border:1px solid var(--line-strong);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink);background:rgba(255,255,255,0.04)}
+
+  /* hero media frame */
+  .hero-media{
+    margin:56px auto 0;max-width:1000px;border-radius:var(--radius);
+    border:1px solid var(--line);background:var(--panel);
+    box-shadow:var(--shadow-hero);overflow:hidden;
+  }
+  .frame-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+  .frame-bar span{width:11px;height:11px;border-radius:50%;background:#3a3a3d}
+  .frame-bar .url{margin-left:14px;font-size:12px;color:var(--ink-mute);font-family:'Inter'}
+  /* ---------- ASSET / IMAGE SLOTS ----------
+     Drop a landscape image into a slot by adding an <img> inside .slot.
+     The image is shown in full (contain) — never cropped. */
+  .slot{
+    position:relative;width:100%;overflow:hidden;border-radius:inherit;
+    background:
+      repeating-linear-gradient(45deg,var(--ph-stripe-a) 0 12px,var(--ph-stripe-b) 12px 24px),
+      linear-gradient(180deg,var(--ph-grad-a),var(--ph-grad-b));
+    transition:background .4s var(--ease);
+  }
+  .slot img{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:contain;object-position:center;
+  }
+  /* placeholder caption, hidden once a real image is present */
+  .slot .ph-label{
+    position:absolute;inset:0;display:flex;flex-direction:column;gap:6px;
+    align-items:center;justify-content:center;text-align:center;
+    color:var(--ink-mute);font-size:13px;letter-spacing:0.04em;padding:24px;
+  }
+  .slot:has(img) .ph-label{display:none}
+  .slot .ph-label b{color:var(--ink-soft);font-weight:600;font-size:14px}
+  .slot .ph-tag{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold)}
+  /* aspect ratios define the FRAME; contain keeps the image whole inside it */
+  .ratio-16-9{aspect-ratio:16/9}
+  .ratio-4-3{aspect-ratio:4/3}
+  .ratio-1-1{aspect-ratio:1/1}
+  .ratio-3-2{aspect-ratio:3/2}
+  /* auto-height slot: frame matches the image's own landscape ratio (no letterbox, no crop).
+     Use on the hero. When empty, min-height keeps the placeholder visible. */
+  .ph.auto{aspect-ratio:auto;min-height:300px}
+  .ph.auto img{position:static;inset:auto;height:auto;object-fit:fill}
+  /* legacy alias so existing markup keeps working */
+  .ph{position:relative;width:100%;overflow:hidden;
+    background:
+      repeating-linear-gradient(45deg,var(--ph-stripe-a) 0 12px,var(--ph-stripe-b) 12px 24px),
+      linear-gradient(180deg,var(--ph-grad-a),var(--ph-grad-b));
+    display:grid;place-items:center;text-align:center;color:var(--ink-mute);
+    transition:background .4s var(--ease);
+  }
+  .ph img,.ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center}
+  .ph.auto video{position:static;inset:auto;height:auto;object-fit:fill;display:block}
+  .ph:has(img) .ph-label,.ph:has(video) .ph-label{display:none}
+  .ph .ph-label{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:13px;letter-spacing:0.04em;padding:24px;position:relative;z-index:1}
+  .ph .ph-label b{color:var(--ink-soft);font-weight:600;font-size:14px}
+  .ph .ph-tag{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold)}
+
+  /* ---------- SECTION SHELL ---------- */
+  section{padding:84px 0;border-top:1px solid var(--line)}
+  .sec-ey{margin-bottom:14px}
+  .sec-h{font-size:clamp(28px,4.4vw,46px);font-weight:600;max-width:18ch}
+  .sec-sub{margin-top:18px;max-width:64ch;color:var(--ink-soft);font-size:17px}
+
+  /* facts + intro */
+  .meta-grid{display:grid;grid-template-columns:300px 1fr;gap:60px;align-items:start}
+  @media(max-width:860px){.meta-grid{grid-template-columns:1fr;gap:36px}}
+  .facts{display:flex;flex-direction:column;gap:24px}
+  .fact .k{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:7px}
+  .fact .v{font-family:'Sora';font-size:15px;color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+  .intro-body p{font-size:18px;line-height:1.75;color:var(--ink-soft)}
+  .intro-body p + p{margin-top:20px}
+  .intro-body b{color:var(--ink);font-weight:600}
+
+  /* challenge cards */
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:46px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 26px 28px;transition:.3s var(--ease);
+  }
+  .card:hover{border-color:var(--line-strong);transform:translateY(-3px);background:var(--panel-2)}
+  .card h4{font-size:18px;font-weight:600;margin-bottom:10px}
+  .card p{font-size:14.5px;color:var(--ink-soft)}
+  .card .num{font-family:'Sora';font-size:13px;color:var(--gold);font-weight:600;letter-spacing:0.1em;margin-bottom:14px;display:block}
+
+  /* WORKFLOW timeline */
+  .flow{position:relative;margin-top:50px;display:flex;flex-direction:column;gap:0}
+  .step{
+    display:grid;grid-template-columns:64px 1fr;gap:24px;position:relative;
+    padding-bottom:44px;
+  }
+  .step:last-child{padding-bottom:0}
+  .step .rail{display:flex;flex-direction:column;align-items:center}
+  .step .dot{
+    width:52px;height:52px;border-radius:14px;flex:none;
+    background:var(--panel-2);border:1px solid var(--line-strong);
+    display:grid;place-items:center;font-family:'Sora';font-weight:700;font-size:18px;color:var(--gold);
+    position:relative;z-index:2;
+  }
+  .step .line{flex:1;width:1px;background:linear-gradient(var(--line-strong),transparent);margin-top:6px}
+  .step:last-child .line{display:none}
+  .step .body{padding-top:4px}
+  .step .phase{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:6px}
+  .step h3{font-size:21px;font-weight:600;margin-bottom:10px}
+  .step p{font-size:15.5px;color:var(--ink-soft);max-width:66ch}
+  .step .toolset{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .step .tool{font-size:12px;padding:5px 11px;border-radius:8px;background:rgba(201,162,74,0.08);border:1px solid rgba(201,162,74,0.22);color:var(--gold-soft)}
+  .step .variants{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  @media(max-width:680px){.step .variants{grid-template-columns:1fr}.step{grid-template-columns:48px 1fr;gap:16px}.step .dot{width:44px;height:44px}}
+
+  /* stack stat row */
+  .toolbar-stack{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:42px}
+  @media(max-width:760px){.toolbar-stack{grid-template-columns:repeat(2,1fr)}}
+  .tcell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .tcell .name{font-family:'Sora';font-weight:600;font-size:15.5px}
+  .tcell .role{font-size:12.5px;color:var(--ink-mute);margin-top:5px}
+
+  /* architecture */
+  .arch{
+    margin-top:44px;background:
+      radial-gradient(700px 300px at 50% 0%,rgba(201,162,74,0.07),transparent 70%),
+      var(--bg-soft);
+    border:1px solid var(--line);border-radius:24px;padding:48px 32px;
+  }
+  .arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:stretch;max-width:920px;margin:0 auto}
+  @media(max-width:760px){.arch-grid{grid-template-columns:1fr}}
+  .node{
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:16px;
+    padding:22px;text-align:center;display:flex;flex-direction:column;gap:8px;justify-content:center;min-height:128px;
+  }
+  .node .ntag{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold)}
+  .node .ntitle{font-family:'Sora';font-weight:600;font-size:17px}
+  .node .ndesc{font-size:13px;color:var(--ink-soft)}
+  .node.accent{border-color:rgba(201,162,74,0.4);background:linear-gradient(180deg,rgba(201,162,74,0.07),var(--panel))}
+  .arch-flow{display:flex;align-items:center;justify-content:center;gap:14px;color:var(--ink-mute);font-size:13px;margin-top:26px;flex-wrap:wrap}
+  .arch-flow .pill{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel)}
+  .arch-flow .arrow{color:var(--gold)}
+  .arch-note{margin-top:28px;text-align:center;color:var(--ink-soft);font-size:14.5px;max-width:60ch;margin-left:auto;margin-right:auto}
+
+  /* result gallery */
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:42px}
+  @media(max-width:760px){.gallery{grid-template-columns:1fr}}
+  .gallery .full{grid-column:1 / -1}
+  .shot{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
+  .shot .cap{padding:14px 18px;font-size:13px;color:var(--ink-mute);border-top:1px solid var(--line)}
+
+  /* outcome metrics */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px}
+  @media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}
+  .metric{text-align:left}
+  .metric .big{font-family:'Sora';font-weight:700;font-size:clamp(30px,4.5vw,46px);background:linear-gradient(120deg,var(--gold-soft),var(--ember));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .metric .lbl{font-size:13.5px;color:var(--ink-soft);margin-top:8px}
+
+  /* why us */
+  .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}
+  @media(max-width:860px){.why-grid{grid-template-columns:1fr}}
+  .why{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+  .why .ic{width:42px;height:42px;border-radius:11px;background:rgba(201,162,74,0.1);border:1px solid rgba(201,162,74,0.25);display:grid;place-items:center;margin-bottom:16px;color:var(--gold);font-size:19px}
+  .why h4{font-size:17px;font-weight:600;margin-bottom:9px}
+  .why p{font-size:14.5px;color:var(--ink-soft)}
+
+  /* CTA */
+  .cta{
+    margin:0 auto;text-align:center;padding:90px 0;
+    background:radial-gradient(700px 360px at 50% 40%,rgba(217,119,47,0.12),transparent 70%);
+  }
+  .cta h2{font-size:clamp(30px,5vw,52px);font-weight:600;max-width:18ch;margin:0 auto}
+  .cta p{margin:20px auto 34px;max-width:54ch;color:var(--ink-soft);font-size:17px}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:54px 0 40px;background:var(--bg-soft)}
+  .foot-grid{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;align-items:flex-start}
+  .foot-brand{max-width:34ch}
+  .foot-brand p{color:var(--ink-mute);font-size:14px;margin-top:12px}
+  .foot-cols{display:flex;gap:64px;flex-wrap:wrap}
+  .foot-col h5{font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:14px}
+  .foot-col a{display:block;color:var(--ink-soft);font-size:14px;margin-bottom:9px;transition:color .2s}
+  .foot-col a:hover{color:var(--gold)}
+  .foot-bottom{margin-top:46px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--ink-mute)}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="mark">G</span>
+      <span>GMV<small>AI-Native Case Study</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#challenge">Challenge</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#result">Result</a>
+    </nav>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark / light mode" title="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></svg>
+      </button>
+      <a class="nav-cta" href="#contact">Start a Project →</a>
+    </div>
+  </div>
+</header>
+
+<!-- SUBNAV -->
+<div class="subnav">
+  <div class="wrap subnav-inner">
+    <div class="links">
+      <a href="#overview">Overview</a>
+      <a href="#challenge">Challenge</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#result">Result</a>
+    </div>
+    <a class="back" href="#">← back to all work</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<main id="top">
+<section class="hero" style="border-top:none">
+  <div class="wrap">
+    <span class="eyebrow">Global Minang Ventura · 2026</span>
+    <h1>An AI-native build, from first pitch to live product</h1>
+    <p class="lede">How we answered “can you build this?” with a working proof of concept — then shipped a bilingual, investor-grade website and a database-free CMS in a <b>7-day</b> AI-native build.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#workflow">See the workflow →</a>
+      <a class="btn btn-ghost" href="#result">View the result</a>
+    </div>
+
+    <div class="hero-media">
+      <div class="frame-bar"><span></span><span></span><span></span><span class="url">gmv-cloudflare-v2.pages.dev</span></div>
+      <!-- HERO VIDEO -->
+      <div class="ph auto ratio-16-9">
+        <video src="gmvvideo.mp4" autoplay loop muted playsinline preload="metadata"></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW / FACTS + INTRO -->
+<section id="overview">
+  <div class="wrap meta-grid">
+    <aside class="facts reveal">
+      <div class="fact"><div class="k">Client</div><div class="v">Global Minang Ventura</div></div>
+      <div class="fact"><div class="k">Sector</div><div class="v">Venture · F&amp;B Expansion</div></div>
+      <div class="fact"><div class="k">Deliverables</div>
+        <div class="chips">
+          <span class="chip">Proof of Concept</span>
+          <span class="chip">Brand Website</span>
+          <span class="chip">Custom CMS</span>
+          <span class="chip">AI Brand Media</span>
+        </div>
+      </div>
+      <div class="fact"><div class="k">Timeline</div><div class="v">POC → live in 7 days</div></div>
+      <div class="fact"><div class="k">Stack</div>
+        <div class="chips">
+          <span class="chip">Figma Sites</span>
+          <span class="chip">Nano Banana Pro</span>
+          <span class="chip">Veo 3</span>
+          <span class="chip">Seedream 2.0</span>
+          <span class="chip">Cloudflare</span>
+          <span class="chip">GitHub · .md</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="intro-body reveal">
+      <span class="eyebrow sec-ey">The Brief</span>
+      <h2 class="sec-h" style="font-size:clamp(26px,3.4vw,38px)">A heritage venture that needed to look like the future.</h2>
+      <p style="margin-top:24px">Global Minang Ventura is the official licensed partner of Restoran Sederhana — a 54-year-old Padang restaurant brand with ~200 locations — on a mission to scale Minang cuisine to international markets. To raise capital and attract regional partners, GMV needed a website that read like an <b>investor-grade venture</b>, not a restaurant page.</p>
+      <p>The prospect came to us with a simple question: <b>“Can you build this?”</b> Instead of a deck, we answered with working software. What followed became a showcase of how we deliver — an <b>AI-native workflow</b> that compresses the slow, expensive parts of web delivery into a fraction of the usual time and cost.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CHALLENGE -->
+<section id="challenge">
+  <div class="wrap">
+    <span class="eyebrow sec-ey reveal">The Challenge</span>
+    <h2 class="sec-h reveal">Four constraints that usually slow a project down.</h2>
+    <div class="cards">
+      <div class="card reveal"><span class="num">01</span><h4>Prove it before the proposal</h4><p>The client wanted certainty, not promises. We needed to show a tangible, interactive product before any contract — turning the sales conversation into a working demo.</p></div>
+      <div class="card reveal"><span class="num">02</span><h4>Read the client’s taste, fast</h4><p>Style is subjective and revision cycles kill timelines. We needed a way to converge on the right visual direction in days, not weeks of back-and-forth.</p></div>
+      <div class="card reveal"><span class="num">03</span><h4>Original brand media, on a startup budget</h4><p>An investor-grade hero needs cinematic visuals. Stock wouldn’t do, and a full production shoot was out of scope for an early-stage venture.</p></div>
+      <div class="card reveal"><span class="num">04</span><h4>Let a non-technical team self-update</h4><p>GMV needed to edit copy, swap the hero video, and publish articles in two languages — without a developer, a database, or a monthly platform bill.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="wrap">
+    <span class="eyebrow sec-ey reveal">The AI-Native Workflow</span>
+    <h2 class="sec-h reveal">From “can you build this?” to a live product.</h2>
+    <p class="sec-sub reveal">It started with a proof of concept and a signed deal — then a <b>7-day build</b>, where every day replaced a slow, manual step with an AI-accelerated one. No craft lost, no control given up.</p>
+
+    <div class="flow">
+      <!-- POC -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">◍</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Pre-contract</div>
+          <h3>Proof of Concept</h3>
+          <p>The prospect asked, “can you build this?” Instead of a deck, we answered with a <b>working proof of concept</b> — a tangible, interactive product they could feel in their hands, not imagine from slides.</p>
+          <div class="variants">
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>POC — live demo</b></div></div></div>
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>POC — hero concept</b></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEAL -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">✓</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Approved</div>
+          <h3>Deal closed</h3>
+          <p>Seeing it work made the proposal an easy yes. With the deal signed, we moved straight into a tightly scoped 7-day build — taste-finding first, production second.</p>
+        </div>
+      </div>
+
+      <!-- DAY 1 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">1</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 1 · Direction</div>
+          <h3>Three different variants, in a single day</h3>
+          <p>We built <b>three genuinely different directions</b> — distinct layouts, type, and mood — and shipped them as live pages using <b>Figma Sites</b> for speed. Fast, cheap iteration on the cheapest layer, designed to surface what the client actually responds to.</p>
+          <div class="variants">
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Variant 1</b></div></div></div>
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Variant 2</b></div></div></div>
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Variant 3</b></div></div></div>
+          </div>
+          <div class="toolset"><span class="tool">Figma Sites</span></div>
+        </div>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">2</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 2 · Feedback</div>
+          <h3>Read the feedback, narrow to two</h3>
+          <p>We gathered feedback on the three directions and understood what the client wanted — and what they didn’t. We <b>narrowed to two refined variants</b>, sharpening toward the direction that resonated.</p>
+          <div class="variants">
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Refined variant A</b></div></div></div>
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Refined variant B</b></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY 3 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">3</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 3 · Locked</div>
+          <h3>Direction chosen — now it’s only about the hero video</h3>
+          <p>The client chose their variant. With the style settled, the only open question became the <b>hero video</b>. We produced <b>two video heroes</b> to choose from — the debate was no longer “what should it look like?”, just “which one feels right?”</p>
+          <div class="variants">
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Hero video — option 1</b></div></div></div>
+            <div class="shot"><div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset</span><b>Hero video — option 2</b></div></div></div>
+          </div>
+          <div class="toolset"><span class="tool">Veo 3</span><span class="tool">Seedream 2.0</span></div>
+        </div>
+      </div>
+
+      <!-- DAY 4 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">4</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 4 · Revision</div>
+          <h3>Pick one, refine it</h3>
+          <p>The client liked one of the two but wanted changes. We <b>revised the chosen hero video</b> to spec — fast turnaround, because AI generation lets us iterate on the asset itself, not just the edit.</p>
+        </div>
+      </div>
+
+      <!-- DAY 5 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">5</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 5 · Content &amp; CMS</div>
+          <h3>Finish the CMS and inner-section copy</h3>
+          <p>We completed the <b>custom CMS</b> and wrote the <b>copywriting for the inner sections</b> — market opportunity, expansion model, the partner story — so the site read like an investor-grade venture, not a template.</p>
+          <div class="toolset"><span class="tool">Custom CMS</span><span class="tool">GitHub · .md</span><span class="tool">Copywriting</span></div>
+        </div>
+      </div>
+
+      <!-- DAY 6 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">6</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 6 · QA</div>
+          <h3>Internal &amp; client testing</h3>
+          <p>A full pass of <b>internal and client testing</b> — content accuracy, responsive behavior, CMS editing flows, and the bilingual EN/ID experience — so nothing surprised us at launch.</p>
+        </div>
+      </div>
+
+      <!-- DAY 7 -->
+      <div class="step reveal">
+        <div class="rail"><div class="dot">7</div><div class="line"></div></div>
+        <div class="body">
+          <div class="phase">Day 7 · Launch</div>
+          <h3>Migrate to production</h3>
+          <p>We migrated to production on <b>Cloudflare</b>. From “can you build this?” to a live, self-serve, bilingual product — in seven working days.</p>
+          <div class="toolset"><span class="tool">Cloudflare</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI media pipeline callout -->
+    <div class="arch reveal" style="margin-top:48px">
+      <span class="eyebrow" style="display:block;text-align:center">The AI Toolchain</span>
+      <h3 style="text-align:center;font-size:24px;font-weight:600;margin:12px auto 6px">Original brand media — generated, not sourced</h3>
+      <p style="text-align:center;color:var(--ink-soft);max-width:60ch;margin:0 auto 28px;font-size:14.5px">Investor-grade imagery and cinematic video, produced with AI instead of a production crew or stock library.</p>
+      <div class="toolbar-stack" style="margin-top:0">
+        <div class="tcell"><div class="name">Nano Banana Pro</div><div class="role">Image generation</div></div>
+        <div class="tcell"><div class="name">Veo 3</div><div class="role">Video generation</div></div>
+        <div class="tcell"><div class="name">Seedream 2.0</div><div class="role">Video generation</div></div>
+        <div class="tcell"><div class="name">Figma Sites</div><div class="role">Rapid variant prototyping</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="wrap">
+    <span class="eyebrow sec-ey reveal">The Architecture</span>
+    <h2 class="sec-h reveal">Three moving parts. No database. No lock-in.</h2>
+    <p class="sec-sub reveal">A deliberately lean system: content as files, a friendly editor on top, and global hosting underneath.</p>
+
+    <div class="arch reveal">
+      <div class="arch-grid">
+        <div class="node accent">
+          <div class="ntag">Edit</div>
+          <div class="ntitle">Custom CMS Interface</div>
+          <div class="ndesc">Bilingual (EN/ID) admin panel. Non-technical team edits text, media, and articles.</div>
+        </div>
+        <div class="node">
+          <div class="ntag">Store</div>
+          <div class="ntitle">GitHub Repo · .md</div>
+          <div class="ndesc">All content as Markdown files. Versioned, portable, no database. Written via GitHub token.</div>
+        </div>
+        <div class="node">
+          <div class="ntag">Serve</div>
+          <div class="ntitle">Cloudflare Pages</div>
+          <div class="ndesc">Fast, global, near-zero cost. Auto-rebuilds when content changes.</div>
+        </div>
+      </div>
+      <div class="arch-flow">
+        <span class="pill">Team edits in CMS</span>
+        <span class="arrow">→</span>
+        <span class="pill">Commits .md to GitHub</span>
+        <span class="arrow">→</span>
+        <span class="pill">Cloudflare rebuilds</span>
+        <span class="arrow">→</span>
+        <span class="pill">Live site updates</span>
+      </div>
+      <p class="arch-note">No database to maintain, no per-seat CMS subscription, and full content ownership — it all lives in the client’s own GitHub repository.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result">
+  <div class="wrap">
+    <span class="eyebrow sec-ey reveal">The Result</span>
+    <h2 class="sec-h reveal">A shipped, self-serve, investor-ready product.</h2>
+
+    <div class="gallery">
+      <div class="shot full reveal">
+        <!-- ASSET: full live homepage -->
+        <div class="ph ratio-16-9"><div class="ph-label"><span class="ph-tag">Asset slot</span><b>Live GMV website — full homepage</b><span>gmv-cloudflare-v2.pages.dev</span></div></div>
+        <div class="cap">The live bilingual GMV website — hero, market opportunity, expansion model, and partner CTA.</div>
+      </div>
+      <div class="shot reveal">
+        <!-- ASSET: CMS dashboard -->
+        <div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset slot</span><b>Custom CMS — section editor</b></div></div>
+        <div class="cap">Section-based editor with shared assets and live EN/ID fields.</div>
+      </div>
+      <div class="shot reveal">
+        <!-- ASSET: CMS article or mobile -->
+        <div class="ph ratio-4-3"><div class="ph-label"><span class="ph-tag">Asset slot</span><b>CMS — articles &amp; assets</b></div></div>
+        <div class="cap">Publishing flow for press articles and media, backed by Markdown.</div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric reveal"><div class="big">7 days</div><div class="lbl">From signed deal to production launch</div></div>
+      <div class="metric reveal"><div class="big">5</div><div class="lbl">Design variants explored in the first two days</div></div>
+      <div class="metric reveal"><div class="big">$0</div><div class="lbl">Database cost — Markdown + GitHub + Cloudflare</div></div>
+      <div class="metric reveal"><div class="big">EN/ID</div><div class="lbl">Fully bilingual, client-editable content</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="wrap">
+    <span class="eyebrow sec-ey reveal">Why This Workflow Wins</span>
+    <h2 class="sec-h reveal">What an AI-native partner delivers.</h2>
+    <div class="why-grid">
+      <div class="why reveal"><div class="ic">⚡</div><h4>Speed that changes the conversation</h4><p>Day-long iteration loops mean the client sees real options fast — so projects converge instead of dragging through revision cycles.</p></div>
+      <div class="why reveal"><div class="ic">◎</div><h4>Decisions on the cheap layer</h4><p>We settle style in Figma before touching production code, so expensive engineering only happens once the direction is locked.</p></div>
+      <div class="why reveal"><div class="ic">✦</div><h4>Original media, generated</h4><p>Nano Banana Pro, Veo 3 and Seedream 2.0 produce brand-grade imagery and video — cinematic results without a production budget.</p></div>
+      <div class="why reveal"><div class="ic">⌗</div><h4>Lean, ownable infrastructure</h4><p>No database, no lock-in. Content lives in the client’s own GitHub repo and runs at near-zero cost on Cloudflare.</p></div>
+      <div class="why reveal"><div class="ic">⇄</div><h4>True client autonomy</h4><p>A custom CMS lets a non-technical team update everything themselves — bilingual copy, media, and articles — with no developer in the loop.</p></div>
+      <div class="why reveal"><div class="ic">✓</div><h4>Proof before promises</h4><p>We lead with working software. You see what you’re buying before you commit to it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <span class="eyebrow reveal">Build with us</span>
+    <h2 class="reveal" style="margin-top:16px">Have something you want to see built — not just pitched?</h2>
+    <p class="reveal">We’ll answer “can you build this?” the same way we did for GMV: with a working proof of concept you can hold.</p>
+    <div class="hero-actions reveal" style="margin-top:0">
+      <a class="btn btn-primary" href="#">Start a project →</a>
+      <a class="btn btn-ghost" href="https://gmv-cloudflare-v2.pages.dev/" target="_blank" rel="noopener">View the live site</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand"><span class="mark">G</span><span>GMV<small>AI-Native Case Study</small></span></div>
+        <p>An AI-native delivery workflow — proof of concept, rapid iteration, AI-generated media, and database-free infrastructure.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h5>Case Study</h5>
+          <a href="#overview">Overview</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#result">Result</a>
+        </div>
+        <div class="foot-col">
+          <h5>Project</h5>
+          <a href="https://gmv-cloudflare-v2.pages.dev/" target="_blank" rel="noopener">Live website</a>
+          <a href="#">Custom CMS</a>
+          <a href="#contact">Get in touch</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 · AI-Native Portfolio. Case study: Global Minang Ventura.</span>
+      <span>From Minang to the World.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // theme toggle (persisted, respects system preference on first load)
+  (function(){
+    const root = document.documentElement;
+    let saved = null;
+    try { saved = localStorage.getItem('gmv-theme'); } catch(e){}
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    root.setAttribute('data-theme', saved || (prefersLight ? 'light' : 'dark'));
+    const btn = document.getElementById('themeToggle');
+    btn && btn.addEventListener('click', ()=>{
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('gmv-theme', next); } catch(e){}
+    });
+  })();
+
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay = (Math.min(i%6,5)*0.05)+'s';
+    io.observe(el);
+  });
+</script>
+</body>
+</html>
